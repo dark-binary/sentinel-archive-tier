@@ -3,22 +3,23 @@ import azure.mgmt.loganalytics.operations
 from dotenv import load_dotenv
 from azure.identity import DefaultAzureCredential
 import logging
+import automationassets
 
 load_dotenv(".env")
     
 # Acquire a credential object
 token_credential = DefaultAzureCredential()
 
-resource_group_name = "test-rg"
-log_analytics_workspace_name = "test-law"
-subscription_id = "test-sub-id"
-excluded_tables = ["testtable"]
+resource_group_name = automationassets.get_automation_variable("resource_group_name")
+log_analytics_workspace_name = automationassets.get_automation_variable("log_analytics_workspace_name")
+subscription_id = automationassets.get_automation_variable("subscription_id")
+excluded_tables = automationassets.get_automation_variable("excluded_tables").split(",")
 
 # Acquire a client object
 client = LogAnalyticsManagementClient( token_credential, subscription_id)
 
 # Allowed values for Archive Retention: [4-730], 1095, 1460, 1826, 2191, 2556, 2922, 3288, 3653, 4018, 4383 days.
-total_retention_in_days = 90
+total_retention_in_days = automationassets.get_automation_variable("total_retention_in_days")
         
 def update_table_retention(client, resource_group_name, log_analytics_workspace_name, total_retention_in_days, excluded_tables):
     # Get the list of workspaces in the subscription
